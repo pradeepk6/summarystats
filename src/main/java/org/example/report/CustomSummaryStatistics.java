@@ -45,12 +45,8 @@ public class CustomSummaryStatistics implements Consumer<Order> {
     }
 
     public CustomSummaryStatistics combine(CustomSummaryStatistics other) {
-        other.itemWiseProfits.entrySet().forEach(
-                entry -> itemWiseProfits.merge(entry.getKey(), entry.getValue(), BigDecimal::add)
-        );
-        other.yearWiseOrdersMap.entrySet().forEach(
-                entry -> yearWiseOrdersMap.merge(entry.getKey(), entry.getValue(), Integer::sum)
-        );
+        other.itemWiseProfits.forEach((k, v) -> itemWiseProfits.merge(k, v, BigDecimal::add));
+        other.yearWiseOrdersMap.forEach((k, v) -> yearWiseOrdersMap.merge(k, v, Integer::sum));
         numRecords += other.numRecords;
         totalDaysBetweenOrderDateAndShipDate += other.totalDaysBetweenOrderDateAndShipDate;
         return this;
@@ -58,7 +54,7 @@ public class CustomSummaryStatistics implements Consumer<Order> {
 
     public CustomSummaryStatistics finisher() {
         yearWithMaxOrders = yearWiseOrdersMap.entrySet().stream()
-                .max(Map.Entry.comparingByValue(Comparator.comparing(entry -> entry.longValue())));
+                                .max(Map.Entry.comparingByValue(Comparator.comparing(entry -> entry.longValue())));
         avgDaysBetweenOrderDateAndShipDate = (int) (totalDaysBetweenOrderDateAndShipDate / numRecords);
         return this;
     }
@@ -88,5 +84,4 @@ public class CustomSummaryStatistics implements Consumer<Order> {
                 ", numRecords=" + numRecords +
                 '}';
     }
-
 }

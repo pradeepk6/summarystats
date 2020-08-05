@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
-    @NotBlank(message = "Name cannot be blank")
+    @NotBlank(message = "itemType cannot be blank")
     private String itemType;
     private LocalDate orderDate;
     private LocalDate shipDate;

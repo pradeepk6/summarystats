@@ -16,8 +16,8 @@ import java.util.stream.StreamSupport;
 
 public class SalesReport {
 
-    private static DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/y");
-    private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private static final DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/y");
+    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     public static void main(String[] args) {
         long start = System.currentTimeMillis();

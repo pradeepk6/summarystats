@@ -1,58 +1,50 @@
 package org.example;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collector;
 
-public class CustomSummaryStatistics implements Consumer<Map<String, String>> {
+public class CustomSummaryStatistics implements Consumer<Order> {
 
-    private Map<String, BigDecimal> itemWiseProfits = new ConcurrentHashMap<>();
+    private Map<String, BigDecimal> itemWiseProfits = new HashMap<>();
     private Optional<Map.Entry<Integer, Integer>> yearWithMaxOrders;
     private int avgDaysBetweenOrderDateAndShipDate;
 
-    private Map<Integer, Integer> yearWiseOrdersMap = new ConcurrentHashMap<>();
-    private DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/y");
+    private Map<Integer, Integer> yearWiseOrdersMap = new HashMap<>();
+
     private long totalDaysBetweenOrderDateAndShipDate;
+
     private long numRecords;
 
-    public static Collector<Map<String, String>, ?, CustomSummaryStatistics> newCollector() {
+    public static Collector<Order, ?, CustomSummaryStatistics> newCollector() {
         return Collector.of(CustomSummaryStatistics::new, CustomSummaryStatistics::accept,
                 CustomSummaryStatistics::combine, CustomSummaryStatistics::finisher);
     }
 
     @Override
-    public void accept(Map<String, String> map) {
-        updateItemWiseProfits(map);
-        updateYearWithHighestOrders(map);
-        updateAvgDaysBetweenOrderDateAndShipDate(map);
+    public void accept(Order order) {
+        updateItemWiseProfits(order);
+        updateYearWithHighestOrders(order);
+        updateAvgDaysBetweenOrderDateAndShipDate(order);
     }
 
-    private void updateItemWiseProfits(Map<String, String> map) {
-        itemWiseProfits.merge(map.get("Item Type"), new BigDecimal(map.get("Total Profit")), BigDecimal::add);
+    private void updateItemWiseProfits(Order order) {
+        itemWiseProfits.merge(order.getItemType(), order.getTotalProfit(), BigDecimal::add);
     }
 
-    private void updateYearWithHighestOrders(Map<String, String> map) {
-        yearWiseOrdersMap.merge(getYear(map.get("Order Date")), 1, Integer::sum);
+    private void updateYearWithHighestOrders(Order order) {
+        yearWiseOrdersMap.merge(order.getOrderDate().getYear(), 1, Integer::sum);
     }
 
-    private Integer getYear(String date) {
-        return Integer.valueOf(LocalDate.parse(date, df).getYear());
-    }
 
-    private void updateAvgDaysBetweenOrderDateAndShipDate(Map<String, String> map) {
+    private void updateAvgDaysBetweenOrderDateAndShipDate(Order order) {
         numRecords++;
-        totalDaysBetweenOrderDateAndShipDate += getDateDiff(map.get("Order Date"), map.get("Ship Date"));
-    }
-
-    private int getDateDiff(String orderDate, String shipDate) {
-        return Period.between(LocalDate.parse(orderDate, df), LocalDate.parse(shipDate, df)).getDays();
+        totalDaysBetweenOrderDateAndShipDate += Period.between(order.getOrderDate(), order.getShipDate()).getDays();
     }
 
     public CustomSummaryStatistics combine(CustomSummaryStatistics other) {
@@ -84,6 +76,10 @@ public class CustomSummaryStatistics implements Consumer<Map<String, String>> {
 
     public Optional<Map.Entry<Integer, Integer>> getYearWithMaxOrders() {
         return yearWithMaxOrders;
+    }
+
+    public long getNumRecords() {
+        return numRecords;
     }
 
     @Override

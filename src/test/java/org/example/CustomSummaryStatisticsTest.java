@@ -1,17 +1,13 @@
 package org.example;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.math.BigDecimal;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class CustomSummaryStatisticsTest {
 
@@ -19,34 +15,31 @@ public class CustomSummaryStatisticsTest {
 
     @BeforeAll
     public static void setUp() throws IOException {
-        Reader in = new FileReader("src/test/resources/SalesRecords.csv");
-        Iterable<CSVRecord> iterable =
-                CSVFormat.DEFAULT
-                        .withFirstRecordAsHeader()
-                        .withIgnoreEmptyLines(true)
-                        .withDelimiter(',')
-                        .withTrim()
-                        .parse(in);
-        stats = StreamSupport
-                .stream(iterable.spliterator(), true)
-                .map(r -> r.toMap())
-                .collect(CustomSummaryStatistics.newCollector());
+        stats = SalesReport.calculateSummaryStats("src/test/resources/SalesRecord-test.csv");
     }
 
     @Test
     public void calculateAvgDaysBetweenOrderDateAndShipDate() {
-        assertEquals(12, stats.getAvgDaysBetweenOrderDateAndShipDate());
+        assertEquals(15, stats.getAvgDaysBetweenOrderDateAndShipDate());
     }
 
     @Test
     public void calculateYearWithHighestOrders() {
         assertEquals(2015, stats.getYearWithMaxOrders().get().getKey());
-        assertEquals(1351, stats.getYearWithMaxOrders().get().getValue());
+        assertEquals(3, stats.getYearWithMaxOrders().get().getValue());
     }
 
     @Test
     public void calculateItemWiseProfits() {
-        assertEquals(12, stats.getItemWiseProfits().size());
-        assertEquals(new BigDecimal("267551126.74"), stats.getItemWiseProfits().get("Vegetables"));
+        assertEquals(6, stats.getItemWiseProfits().size());
+        assertEquals(new BigDecimal("411291.95"), stats.getItemWiseProfits().get("Vegetables"));
     }
+
+    @Test
+    public void badRowShouldHaveBeenExcluded() {
+        assertFalse(stats.getItemWiseProfits().containsKey("badrow"));
+        assertEquals(9, stats.getNumRecords());
+    }
+
+
 }

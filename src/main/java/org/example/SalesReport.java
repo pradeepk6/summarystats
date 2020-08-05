@@ -6,14 +6,29 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.StreamSupport;
 
 public class SalesReport {
 
-    public static void main(String[] args) throws IOException {
+    private static DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/y");
+
+    public static void main(String[] args) {
         long start = System.currentTimeMillis();
-        Reader in = new FileReader("src/test/resources/SalesRecords.csv");
+        CustomSummaryStatistics stats;
+        try {
+            stats = calculateSummaryStats("data/SalesRecords.csv");
+            System.out.println(stats.toString());
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        System.out.println("Time(milli-seconds) taken to generate Sales Report : " + (System.currentTimeMillis() - start));
+    }
+
+    public static CustomSummaryStatistics calculateSummaryStats(String filePath) throws IOException {
+        Reader in = new FileReader(filePath);
         Iterable<CSVRecord> iterable =
                 CSVFormat.DEFAULT
                         .withFirstRecordAsHeader()
@@ -21,22 +36,24 @@ public class SalesReport {
                         .withDelimiter(',')
                         .withTrim()
                         .parse(in);
-        CustomSummaryStatistics stats = StreamSupport
+        return StreamSupport
                 .stream(iterable.spliterator(), true)
-                .map(CSVRecord::toMap)
-                .filter(map -> validate(map))
+                .map(csvRecord -> toOrder(csvRecord))
+                .filter(order -> order != null)
                 .collect(CustomSummaryStatistics.newCollector());
-        System.out.println(stats.toString());
-        System.out.println("Time(milli-seconds) taken to generate Sales Report : " + (System.currentTimeMillis() - start));
     }
 
-    public static boolean validate(Map<String,String> map) {
+    public static Order toOrder(CSVRecord record) {
+        Order order = new Order();
         try {
-            //todo validate each row
+            order.setItemType(record.get("Item Type"));
+            order.setOrderDate(LocalDate.parse(record.get("Order Date"), df));
+            order.setShipDate(LocalDate.parse(record.get("Ship Date"), df));
+            order.setTotalProfit(new BigDecimal(record.get("Total Profit")));
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            System.out.println("Error with row: " + record.toString() + e.getMessage());
+            return null;
         }
-        return true;
+        return order;
     }
 }

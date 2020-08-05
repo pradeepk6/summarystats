@@ -1,4 +1,4 @@
-package org.example;
+package org.example.report;
 
 import java.math.BigDecimal;
 import java.time.Period;
@@ -16,9 +16,7 @@ public class CustomSummaryStatistics implements Consumer<Order> {
     private int avgDaysBetweenOrderDateAndShipDate;
 
     private Map<Integer, Integer> yearWiseOrdersMap = new HashMap<>();
-
     private long totalDaysBetweenOrderDateAndShipDate;
-
     private long numRecords;
 
     public static Collector<Order, ?, CustomSummaryStatistics> newCollector() {
@@ -40,7 +38,6 @@ public class CustomSummaryStatistics implements Consumer<Order> {
     private void updateYearWithHighestOrders(Order order) {
         yearWiseOrdersMap.merge(order.getOrderDate().getYear(), 1, Integer::sum);
     }
-
 
     private void updateAvgDaysBetweenOrderDateAndShipDate(Order order) {
         numRecords++;
@@ -88,6 +85,8 @@ public class CustomSummaryStatistics implements Consumer<Order> {
                 "itemWiseProfits=" + itemWiseProfits +
                 ", yearWithMaxOrders=" + yearWithMaxOrders +
                 ", avgDaysBetweenOrderDateAndShipDate=" + avgDaysBetweenOrderDateAndShipDate +
+                ", numRecords=" + numRecords +
                 '}';
     }
+
 }

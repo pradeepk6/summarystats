@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.report.CustomSummaryStatistics;
+import org.example.report.SalesReport;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

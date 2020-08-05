@@ -1,6 +1,6 @@
 package org.example;
 
-import java.util.stream.IntStream;
+        import java.util.stream.IntStream;
 
 public class Puzzle {
 
@@ -19,7 +19,7 @@ public class Puzzle {
             c = Integer.parseInt(s.substring(2, 3));
             de = Integer.parseInt(s.substring(3, 5));
 
-            //if first part passes tentatively then goto solve second part
+            //for each first part that passes tentatively goto solve second part(last 4 digits)
             if (((a + b) * c == de) && isDigitsUnique(s)) {
                 IntStream.rangeClosed(123, 9876).forEach(e -> {
                     String s2 = String.valueOf(e);

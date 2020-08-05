@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -12,9 +13,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
-    @NotBlank(message = "itemType cannot be blank")
+    @NotBlank
     private String itemType;
+    @NotNull
     private LocalDate orderDate;
+    @NotNull
     private LocalDate shipDate;
+    @NotNull
     private BigDecimal totalProfit;
 }

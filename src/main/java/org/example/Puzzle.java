@@ -5,28 +5,27 @@ import java.util.stream.IntStream;
 public class Puzzle {
 
     static int numCombinationsFound;
-    static int a, b, c, de, fg, mn;
-    static String s;
 
     public static void solve() {
         //reduce the problem by first narrowing the results for the first 5 digits
-        IntStream.rangeClosed(1234, 98765).forEach(n -> {
-            s = String.valueOf(n);
+        IntStream.rangeClosed(1234, 98765).parallel().forEach(n -> {
+            String s = String.valueOf(n);
             if (s.length() == 4) s = "0" + s;
-            a = Integer.parseInt(s.substring(0, 1));
-            b = Integer.parseInt(s.substring(1, 2));
-            c = Integer.parseInt(s.substring(2, 3));
-            de = Integer.parseInt(s.substring(3, 5));
+            int a = Integer.parseInt(s.substring(0, 1));
+            int b = Integer.parseInt(s.substring(1, 2));
+            int c = Integer.parseInt(s.substring(2, 3));
+            int de = Integer.parseInt(s.substring(3, 5));
 
             //for each first part that passes tentatively goto solve second part(last 4 digits)
             if (((a + b) * c == de) && isDigitsUnique(s)) {
-                IntStream.rangeClosed(123, 9876).forEach(e -> {
+                String finalS = s;
+                IntStream.rangeClosed(123, 9876).parallel().forEach(e -> {
                     String s2 = String.valueOf(e);
                     if (s2.length() == 3) s2 = "0" + s2;
-                    s2 = s + s2;
+                    s2 = finalS + s2;
 
-                    fg = Integer.parseInt(s2.substring(5, 7));
-                    mn = Integer.parseInt(s2.substring(7, 9));
+                    int fg = Integer.parseInt(s2.substring(5, 7));
+                    int mn = Integer.parseInt(s2.substring(7, 9));
 
                     if ((de + fg == mn) && isDigitsUnique(s2)) {
                         numCombinationsFound++;

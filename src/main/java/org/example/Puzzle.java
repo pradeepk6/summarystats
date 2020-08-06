@@ -1,13 +1,12 @@
 package org.example;
 
-        import java.util.stream.IntStream;
+import java.util.stream.IntStream;
 
 public class Puzzle {
 
     static int numCombinationsFound;
     static int a, b, c, de, fg, mn;
     static String s;
-    static String regex = "^(?!.*(.).*\\1)\\d{5}$"; //regex to check unique digits
 
     public static void solve() {
         //reduce the problem by first narrowing the results for the first 5 digits
@@ -29,7 +28,7 @@ public class Puzzle {
                     fg = Integer.parseInt(s2.substring(5, 7));
                     mn = Integer.parseInt(s2.substring(7, 9));
 
-                    if ((de + fg == mn) && s2.matches("^(?!.*(.).*\\1)\\d{9}$")) {
+                    if ((de + fg == mn) && isDigitsUnique(s2)) {
                         numCombinationsFound++;
                         System.out.println("abcdefgmn = " + s2);
                     }
@@ -38,8 +37,12 @@ public class Puzzle {
         });
     }
 
-    static boolean isDigitsUnique(String str) {
-        return str.matches(regex);
+    public static boolean isDigitsUnique(String word) {
+        for (char c : word.toCharArray()) {
+            if(word.indexOf(c)!=word.lastIndexOf(c))
+                return false;
+        }
+        return true;
     }
 
     public static void main(String... args) {
